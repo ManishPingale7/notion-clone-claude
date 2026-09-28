@@ -57,6 +57,18 @@ npm test                          # both
 
 Data is stored in `server/data/notion.db` (SQLite, WAL mode). Uploaded files go to `server/data/uploads/`. Everything survives page refreshes and server restarts.
 
+## Deploy (Render, free, no card)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ManishPingale7/notion-clone-claude)
+
+`render.yaml` defines a single free web service. It builds the client (`npm ci --include=dev && npm run build`) and runs `npm run serve`, which serves the React app, the REST API and the WebSocket endpoint from one origin. Click the button, sign in to Render with GitHub, and click **Apply**. The app is then live at `https://notion-clone-<suffix>.onrender.com`.
+
+Free-plan caveats:
+- Render's free plan has **no persistent disk**. The SQLite database and uploads live on the instance's temporary filesystem, so they reset whenever the service sleeps (after about 15 minutes idle) or redeploys. `SEED_DEMO=true` recreates the demo accounts on every boot. For durable data, attach a Render disk (paid) and set `DATA_DIR` to its mount path.
+- The first request after the service has been idle takes about 30–60 seconds while it wakes up.
+
+The server also supports a split deployment, with a static frontend on one host and the API on another. Build the client with `VITE_WS_URL=wss://<api-host>` and proxy `/api` and `/uploads` to the API host. The browser then opens the WebSocket to the API host using a short-lived single-use token from `POST /api/auth/ws-token`.
+
 ## Features
 
 ### Accounts and workspaces

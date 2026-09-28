@@ -1,0 +1,25 @@
+# Render Blueprint: one free web service serves the built React app, the API
+# and the WebSocket endpoint. Deploy: https://render.com/deploy?repo=https://github.com/ManishPingale7/notion-clone-claude
+#
+# Note: Render's free plan has no persistent disk. The SQLite database lives on
+# the instance's ephemeral filesystem and is reset when the service sleeps
+# (~15 min idle) or redeploys; SEED_DEMO recreates the demo accounts on boot.
+services:
+  - type: web
+    name: notion-clone
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run serve
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: HOST
+        value: 0.0.0.0
+      - key: SECURE_COOKIES
+        value: "true"
+      - key: SEED_DEMO
+        value: "true"
