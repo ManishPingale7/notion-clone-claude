@@ -7,3 +7,4 @@ playwright-report/
 .env
 .DS_Store
 .scratch/
+.e2e-data/

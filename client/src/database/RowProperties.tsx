@@ -7,6 +7,7 @@ import { useApp } from '../store';
 import { makeCtx, propIcon, COMPUTED, getValue } from './dbUtils';
 import { PropertyDisplay, PropertyEditor } from './Property';
 import { PropertyMenu, AddPropertyMenu } from './PropertyMenu';
+import { notifyDbChanged } from './DatabaseView';
 
 export function RowProperties({ page, databaseId, schema: initialSchema, people, readOnly, onChange }: { page: Page; databaseId: string; schema: DbSchema; people: User[]; readOnly: boolean; onChange: (patch: Partial<Page>) => void }) {
   const [data, setData] = useState<DatabaseData | null>(null);
@@ -41,7 +42,10 @@ export function RowProperties({ page, databaseId, schema: initialSchema, people,
     const next = { ...row, properties: { ...row.properties, [def.id]: v }, updatedAt: Date.now() };
     setRow(next);
     onChange({ properties: next.properties, updatedAt: next.updatedAt });
-    api.patch(`/api/pages/${row.id}`, { properties: { [def.id]: v } }).catch((e) => toast(e.message, { kind: 'error' }));
+    api
+      .patch(`/api/pages/${row.id}`, { properties: { [def.id]: v } })
+      .then(() => notifyDbChanged(databaseId))
+      .catch((e) => toast(e.message, { kind: 'error' }));
   };
   const updateDef = async (id: string, patch: Partial<PropertyDef> & { type?: PropertyType }) => {
     try {

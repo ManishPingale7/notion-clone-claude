@@ -30,7 +30,7 @@ function RolePicker({ value, onChange, onRemove, disabled }: { value: Role; onCh
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   return (
     <>
-      <button className="role-btn" disabled={disabled} onClick={(e) => setAnchor(e.currentTarget)} data-testid="role-picker">
+      <button type="button" className="role-btn" disabled={disabled} onClick={(e) => setAnchor(e.currentTarget)} data-testid="role-picker">
         {ROLE_LABELS[value]}
         {!disabled && <ChevronDown size={12} />}
       </button>

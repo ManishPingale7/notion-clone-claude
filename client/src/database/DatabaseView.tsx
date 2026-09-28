@@ -28,6 +28,11 @@ export const VIEW_TYPES: { type: ViewType; label: string; icon: React.ReactNode 
   { type: 'calendar', label: 'Calendar', icon: <CalendarDays size={16} strokeWidth={1.7} /> },
   { type: 'timeline', label: 'Timeline', icon: <GanttChart size={16} strokeWidth={1.7} /> },
 ];
+/** Tells DatabaseViews in this tab that rows of a database changed. */
+export function notifyDbChanged(databaseId: string) {
+  window.dispatchEvent(new CustomEvent('db:changed', { detail: { databaseId } }));
+}
+
 export const viewIcon = (t: ViewType) => VIEW_TYPES.find((v) => v.type === t)?.icon;
 
 export interface DbApi {
@@ -92,6 +97,18 @@ export function DatabaseView({ databaseId, inline, fullPage, readOnly: readOnlyP
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    // changes made elsewhere in this tab (row peek, row page) — the server does not echo them back
+    const onLocal = (e: Event) => {
+      if ((e as CustomEvent).detail?.databaseId === databaseId) {
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = window.setTimeout(load, 50);
+      }
+    };
+    window.addEventListener('db:changed', onLocal);
+    return () => window.removeEventListener('db:changed', onLocal);
+  }, [databaseId, load]);
 
   useEffect(() => {
     if (publicMode) return;

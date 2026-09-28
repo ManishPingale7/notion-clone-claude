@@ -20,7 +20,7 @@ import { HistoryModal } from './HistoryModal';
 import { CommentComposer, DiscussionThread } from './Comments';
 import { trashPage, duplicatePage, toggleFavorite, copyLink, movePage, setPageIcon } from './pageActions';
 import { COVER_PRESETS, coverCss, pageTitle, timeAgo, MOD, uuid, htmlToText } from '../lib/format';
-import { DatabaseView } from '../database/DatabaseView';
+import { DatabaseView, notifyDbChanged } from '../database/DatabaseView';
 import { RowProperties } from '../database/RowProperties';
 import { removeDiscussionAnchor } from '../editor/inline';
 
@@ -229,6 +229,7 @@ export function PageView({
       try {
         const r = await api.patch(`/api/pages/${pageId}`, patch);
         setData((d) => (d ? { ...d, page: { ...d.page, ...r.page } } : d));
+        if (r.page.parentType === 'database' && r.page.parentId) notifyDbChanged(r.page.parentId);
       } catch (e: any) {
         toast(e.message, { kind: 'error' });
       }

@@ -18,8 +18,12 @@ function RequireAuth({ children }: { children: React.ReactElement }) {
 function GuestOnly({ children }: { children: React.ReactElement }) {
   const me = useApp((s) => s.me);
   const loaded = useApp((s) => s.loaded);
+  const location = useLocation();
   if (!loaded) return <Loading />;
-  if (me) return <Navigate to="/" replace />;
+  if (me) {
+    const next = new URLSearchParams(location.search).get('next');
+    return <Navigate to={next && next.startsWith('/') ? next : '/'} replace />;
+  }
   return children;
 }
 

@@ -134,9 +134,11 @@ export const useApp = create<AppState>((set, get) => ({
     try {
       const data = await api.get(`/api/workspaces/${wsId}/sidebar`);
       if (get().workspaceId !== wsId) return;
-      const meta: Record<string, PageMeta> = {};
-      for (const p of data.pages as SidebarPage[]) meta[p.id] = { id: p.id, title: p.title, icon: p.icon, type: p.type, parentId: p.parentId };
-      set({ sidebarPages: data.pages, favorites: data.favorites, isMember: data.isMember, pageMeta: { ...get().pageMeta, ...meta } });
+      const pageMeta = { ...get().pageMeta };
+      for (const p of data.pages as SidebarPage[]) {
+        pageMeta[p.id] = { ...pageMeta[p.id], id: p.id, title: p.title, icon: p.icon, type: p.type, parentId: p.parentId, isInline: p.isInline, deleted: false };
+      }
+      set({ sidebarPages: data.pages, favorites: data.favorites, isMember: data.isMember, pageMeta });
     } catch (e: any) {
       if (e?.status === 403) await get().refreshWorkspaces();
     }
