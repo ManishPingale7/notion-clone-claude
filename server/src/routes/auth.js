@@ -3,7 +3,7 @@ import { q } from '../db.js';
 import { h, badRequest, unauthorized, isEmail, now } from '../lib/util.js';
 import {
   createSession, destroySession, setSessionCookie, clearSessionCookie, verifyPassword, hashPassword,
-  requireUser, publicUser,
+  requireUser, publicUser, issueWsToken,
 } from '../auth.js';
 import { createUser } from '../services.js';
 import { userWorkspaces } from '../permissions.js';
@@ -60,6 +60,12 @@ r.get(
   '/me',
   requireUser,
   h((req, res) => res.json(mePayload(req.user))),
+);
+
+r.post(
+  '/ws-token',
+  requireUser,
+  h((req, res) => res.json({ token: issueWsToken(req.user.id) })),
 );
 
 r.patch(

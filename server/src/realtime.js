@@ -1,5 +1,5 @@
 import { WebSocketServer } from 'ws';
-import { parseCookies, userFromToken } from './auth.js';
+import { parseCookies, userFromToken, consumeWsToken } from './auth.js';
 import { pageRole, userWorkspaces } from './permissions.js';
 
 // Realtime hub. Clients subscribe to rooms:
@@ -54,7 +54,7 @@ export function attachRealtime(server) {
   server.on('upgrade', (req, socket, head) => {
     const url = new URL(req.url, 'http://localhost');
     if (url.pathname !== '/ws') return socket.destroy();
-    const user = userFromToken(parseCookies(req.headers.cookie).sid);
+    const user = userFromToken(parseCookies(req.headers.cookie).sid) || consumeWsToken(url.searchParams.get('token'));
     if (!user) {
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
       return socket.destroy();

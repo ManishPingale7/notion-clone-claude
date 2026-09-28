@@ -1,4 +1,8 @@
-import { clientId } from './api';
+import { api, clientId } from './api';
+
+// In split deployments (static frontend + API elsewhere) VITE_WS_URL points at
+// the API host, e.g. wss://my-api.fly.dev. Otherwise the socket is same-origin.
+const WS_URL: string | undefined = import.meta.env.VITE_WS_URL;
 
 // WebSocket client with automatic reconnect and room re-subscription.
 
@@ -14,11 +18,29 @@ class Realtime {
   connected = false;
   private statusListeners = new Set<(c: boolean) => void>();
 
-  connect() {
+  private connecting = false;
+
+  async connect() {
     this.closedByUser = false;
-    if (this.ws && this.ws.readyState <= 1) return;
-    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    const ws = new WebSocket(`${proto}://${location.host}/ws?clientId=${clientId}`);
+    if ((this.ws && this.ws.readyState <= 1) || this.connecting) return;
+    let url: string;
+    if (WS_URL) {
+      this.connecting = true;
+      try {
+        const { token } = await api.post('/api/auth/ws-token');
+        url = `${WS_URL.replace(/\/$/, '')}/ws?clientId=${clientId}&token=${encodeURIComponent(token)}`;
+      } catch {
+        this.connecting = false;
+        if (!this.closedByUser) setTimeout(() => this.connect(), Math.min(10000, 500 * 2 ** this.retry++));
+        return;
+      }
+      this.connecting = false;
+      if (this.closedByUser) return;
+    } else {
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      url = `${proto}://${location.host}/ws?clientId=${clientId}`;
+    }
+    const ws = new WebSocket(url);
     this.ws = ws;
     ws.onopen = () => {
       this.retry = 0;

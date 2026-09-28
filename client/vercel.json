@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://notion-clone-manish.fly.dev/api/:path*" },
+    { "source": "/uploads/:path*", "destination": "https://notion-clone-manish.fly.dev/uploads/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

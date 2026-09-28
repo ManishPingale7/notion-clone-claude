@@ -86,3 +86,23 @@ export function publicUser(u) {
   if (!u) return null;
   return { id: u.id, name: u.name, email: u.email, avatarUrl: u.avatar_url, color: u.color };
 }
+
+// Short-lived, single-use tokens that let a browser open the WebSocket on a
+// different origin than the one holding the session cookie (e.g. frontend on
+// Vercel, API on Fly.io).
+const wsTokens = new Map(); // token -> { userId, expires }
+
+export function issueWsToken(userId) {
+  const token = crypto.randomBytes(24).toString('base64url');
+  wsTokens.set(token, { userId, expires: now() + 60_000 });
+  for (const [k, v] of wsTokens) if (v.expires < now()) wsTokens.delete(k);
+  return token;
+}
+
+export function consumeWsToken(token) {
+  const entry = token && wsTokens.get(token);
+  if (!entry) return null;
+  wsTokens.delete(token);
+  if (entry.expires < now()) return null;
+  return q.get('SELECT * FROM users WHERE id = ?', entry.userId) || null;
+}
