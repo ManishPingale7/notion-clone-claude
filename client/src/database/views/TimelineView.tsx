@@ -160,11 +160,17 @@ export function TimelineView() {
                   }}
                 >
                   {d ? (
-                    <div className="tl-bar" style={{ left: dayIndex(d.start) * dayW + 2, width: Math.max(1, dayIndex(d.end) - dayIndex(d.start) + 1) * dayW - 4 }} onMouseDown={(e) => startDrag(e, r, 'move')} data-testid="timeline-bar">
-                      {!readOnly && <span className="tl-handle left" onMouseDown={(e) => startDrag(e, r, 'start')} />}
-                      <span className="ellipsis">{r.title || 'Untitled'}</span>
-                      {!readOnly && <span className="tl-handle right" onMouseDown={(e) => startDrag(e, r, 'end')} />}
-                    </div>
+                    (() => {
+                      const width = Math.max(1, dayIndex(d.end) - dayIndex(d.start) + 1) * dayW - 4;
+                      const narrow = width < 90;
+                      return (
+                        <div className={'tl-bar ' + (narrow ? 'narrow' : '')} style={{ left: dayIndex(d.start) * dayW + 2, width }} onMouseDown={(e) => startDrag(e, r, 'move')} data-testid="timeline-bar">
+                          {!readOnly && <span className="tl-handle left" onMouseDown={(e) => startDrag(e, r, 'start')} />}
+                          {narrow ? <span className="tl-outside-label">{r.title || 'Untitled'}</span> : <span className="ellipsis">{r.title || 'Untitled'}</span>}
+                          {!readOnly && <span className="tl-handle right" onMouseDown={(e) => startDrag(e, r, 'end')} />}
+                        </div>
+                      );
+                    })()
                   ) : (
                     <span className="tl-unscheduled faint">{readOnly ? 'No date' : 'Double-click to schedule'}</span>
                   )}

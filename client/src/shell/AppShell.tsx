@@ -20,6 +20,12 @@ export function AppShell() {
   const sidebarTimer = useRef(0);
   const isNarrow = useIsNarrow();
 
+  // on phones the sidebar is an overlay: close it after navigating
+  useEffect(() => {
+    if (isNarrow && useApp.getState().sidebarOpen) useApp.getState().setSidebarOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageId]);
+
   // realtime connection & workspace room
   useEffect(() => {
     realtime.connect();

@@ -232,7 +232,10 @@ export function DatabaseView({ databaseId, inline, fullPage, readOnly: readOnlyP
             }));
             try {
               const r = await api.patch(`/api/databases/${databaseId}/properties/${propId}`, patch);
-              if (patch.type || patch.options || patch.databaseId) load();
+              // type / relation changes can rewrite row values: reload everything.
+              // Option edits only change the schema, and a full reload here would race
+              // with (and overwrite) the optimistic value the user just picked.
+              if (patch.type || patch.databaseId) await load();
               else patchData((d) => ({ ...d, database: { ...d.database, schema: r.schema } }));
               return r.property as PropertyDef;
             } catch (e: any) {

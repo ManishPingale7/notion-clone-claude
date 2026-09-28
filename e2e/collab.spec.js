@@ -64,7 +64,7 @@ test('sharing: invite with view access, upgrade to edit, revoke', async ({ brows
   await alice.getByTestId('share-button').click();
   await alice.getByTestId('share-email').fill('bob@example.com');
   await alice.getByTestId('share-menu').getByTestId('role-picker').first().click();
-  await alice.getByText('Can view', { exact: true }).click();
+  await alice.locator('.popover .menu-item').filter({ hasText: 'Can view' }).click();
   await alice.getByTestId('share-invite').click();
   await expect(alice.getByTestId('share-person').filter({ hasText: 'Bob Martinez' })).toContainText('Can view');
   await alice.keyboard.press('Escape');
@@ -83,7 +83,7 @@ test('sharing: invite with view access, upgrade to edit, revoke', async ({ brows
   // upgrade to edit
   await alice.getByTestId('share-button').click();
   await alice.getByTestId('share-person').filter({ hasText: 'Bob Martinez' }).getByTestId('role-picker').click();
-  await alice.getByText('Can edit', { exact: true }).click();
+  await alice.locator('.popover .menu-item').filter({ hasText: 'Can edit' }).click();
   await alice.keyboard.press('Escape');
   await bob.reload();
   await expect(bob.locator('.editor .rich').first()).toHaveAttribute('contenteditable', 'true');
@@ -95,7 +95,7 @@ test('sharing: invite with view access, upgrade to edit, revoke', async ({ brows
   // revoke
   await alice.getByTestId('share-button').click();
   await alice.getByTestId('share-person').filter({ hasText: 'Bob Martinez' }).getByTestId('role-picker').click();
-  await alice.getByText('Remove', { exact: true }).click();
+  await alice.locator('.popover .menu-item').filter({ hasText: 'Remove' }).click();
   await alice.keyboard.press('Escape');
   await bob.reload();
   await expect(bob.getByText('does not exist, or you do not have access')).toBeVisible();
