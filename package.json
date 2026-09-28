@@ -1,0 +1,23 @@
+{
+  "name": "notion-clone",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A full-stack Notion clone: block editor, databases, sharing, realtime collaboration.",
+  "workspaces": ["server", "client"],
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "npm run build -w client",
+    "start": "npm run build && npm run start -w server",
+    "serve": "npm run start -w server",
+    "seed": "npm run seed -w server",
+    "reset-db": "npm run reset -w server",
+    "test": "npm run test:api && npm run test:e2e",
+    "test:api": "npm test -w server",
+    "test:e2e": "playwright test",
+    "typecheck": "npm run typecheck -w client"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

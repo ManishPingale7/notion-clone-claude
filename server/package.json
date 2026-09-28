@@ -1,0 +1,20 @@
+{
+  "name": "notion-clone-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/index.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch-path=src src/index.js",
+    "seed": "node --disable-warning=ExperimentalWarning src/seed.js",
+    "reset": "node --disable-warning=ExperimentalWarning src/reset.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/api.test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "multer": "^2.0.2",
+    "sanitize-html": "^2.17.0",
+    "ws": "^8.18.3"
+  }
+}
